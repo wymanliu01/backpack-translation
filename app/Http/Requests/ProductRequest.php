@@ -27,7 +27,6 @@ class ProductRequest extends FormRequest
     {
         return [
             'sku' => 'required',
-            'name' => 'required',
             'price' => 'required'
         ];
     }

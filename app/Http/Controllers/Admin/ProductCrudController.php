@@ -85,18 +85,40 @@ class ProductCrudController extends CrudController
             'label' => 'SKU',
         ]);
 
-        CRUD::addTranslationSection([
-            [
-                'name' => 'name',
-                'type' => 'text',
-                'label' => 'Product Name',
-            ],
-            [
-                'name' => 'description',
-                'type' => 'textarea',
-                'label' => 'Description',
-            ],
-        ], ['zh-hk', 'es', 'fr']);
+        $repeatable = true;
+
+        if (!$repeatable) {
+            CRUD::addTranslationSection([
+                [
+                    'name' => 'name',
+                    'type' => 'text',
+                    'label' => 'Product Name',
+                ],
+                [
+                    'name' => 'description',
+                    'type' => 'textarea',
+                    'label' => 'Description',
+                ],
+            ], config('app.supported_locales'));
+        } else {
+            CRUD::addField([   // repeatable
+                'name' => 'translations',
+                'label' => 'Translations',
+                'type' => 'translations',
+                'fields' => [
+                    [
+                        'name' => 'name',
+                        'type' => 'text',
+                        'label' => 'Product Name',
+                    ],
+                    [
+                        'name' => 'description',
+                        'type' => 'textarea',
+                        'label' => 'Description',
+                    ],
+                ],
+            ]);
+        }
 
         CRUD::addField([
             'name' => 'price',

@@ -77,6 +77,8 @@ trait TranslationOperation
 
         $inputData = $this->crud->getStrippedSaveRequest();
 
+        dd($inputData);
+
         // insert item in the db
         $item = $this->crud->create($inputData);
         $this->data['entry'] = $this->crud->entry = $item;
