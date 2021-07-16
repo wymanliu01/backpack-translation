@@ -1,14 +1,14 @@
-<?php
+<?php /** @noinspection PhpUndefinedClassInspection */
 
 namespace App\Traits\Backpack;
 
+use Alert;
 use Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
 use Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
 use Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Str;
 
 /**
  * Trait CreateWithTranslationOperation
@@ -62,11 +62,8 @@ trait TranslationOperation
         return view($this->crud->getEditView(), $this->data);
     }
 
-
     /**
      * @return mixed
-     * @noinspection PhpFullyQualifiedNameUsageInspection
-     * @noinspection PhpUndefinedClassInspection
      */
     public function store()
     {
@@ -77,16 +74,20 @@ trait TranslationOperation
 
         $inputData = $this->crud->getStrippedSaveRequest();
 
-        dd($inputData);
-
         // insert item in the db
         $item = $this->crud->create($inputData);
         $this->data['entry'] = $this->crud->entry = $item;
 
-        $this->setItemTranslation($item, $inputData);
+        if (is_array(json_decode($inputData['translations']))){
+            foreach (json_decode($inputData['translations']) as $translation){
+                if (isset($translation->locale, $translation->column_name, $translation->value)){
+                    $this->setItemTranslation($item, $translation->locale, $translation->column_name, $translation->value);
+                }
+            }
+        }
 
         // show a success message
-        \Alert::success(trans('backpack::crud.insert_success'))->flash();
+        Alert::success(trans('backpack::crud.insert_success'))->flash();
 
         // save the redirect choice for next time
         $this->crud->setSaveAction();
@@ -96,30 +97,17 @@ trait TranslationOperation
 
     /**
      * @param $item
-     * @param $inputData
+     * @param $locale
+     * @param $columnName
+     * @param $value
      */
-    private function setItemTranslation($item, $inputData)
+    private function setItemTranslation($item, $locale, $columnName, $value)
     {
-        if (isset($item->translatable) && is_array($item->translatable) && method_exists($item, 'setTranslation')) {
-
-            foreach ($item->translatable as $column) {
-
-                foreach ($inputData as $key => $value) {
-
-                    if (strpos($key, sprintf('%s_t_', $column)) === 0) {
-
-                        $locale = Str::substr($key, Str::length(sprintf('%s_t_', $column)));
-
-                        $item->setTranslation($locale, $column, $value);
-                    }
-                }
-            }
-        }
+        $item->setTranslation($locale, $columnName, $value);
     }
 
     /**
      * @return mixed
-     * @noinspection PhpUndefinedClassInspection
      */
     public function update()
     {
@@ -134,10 +122,10 @@ trait TranslationOperation
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()), $inputData);
         $this->data['entry'] = $this->crud->entry = $item;
 
-        $this->setItemTranslation($item, $inputData);
+        //$this->setItemTranslation($item, $inputData);
 
         // show a success message
-        \Alert::success(trans('backpack::crud.update_success'))->flash();
+        Alert::success(trans('backpack::crud.update_success'))->flash();
 
         // save the redirect choice for next time
         $this->crud->setSaveAction();

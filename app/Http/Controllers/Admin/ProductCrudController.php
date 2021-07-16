@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Traits\Backpack\TranslationOperation;
@@ -10,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
 use Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanel;
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
  * Class ProductCrudController
@@ -85,10 +85,23 @@ class ProductCrudController extends CrudController
             'label' => 'SKU',
         ]);
 
-        $repeatable = true;
+        CRUD::addField([
+            'name' => 'name',
+            'type' => 'text',
+            'label' => 'Product Name (Default)',
+        ]);
 
-        if (!$repeatable) {
-            CRUD::addTranslationSection([
+        CRUD::addField([
+            'name' => 'description',
+            'type' => 'textarea',
+            'label' => 'Description (Default)',
+        ]);
+
+        CRUD::addField([
+            'name' => 'translations',
+            'label' => 'Translations',
+            'type' => 'translations',
+            'fields' => [
                 [
                     'name' => 'name',
                     'type' => 'text',
@@ -99,26 +112,8 @@ class ProductCrudController extends CrudController
                     'type' => 'textarea',
                     'label' => 'Description',
                 ],
-            ], config('app.supported_locales'));
-        } else {
-            CRUD::addField([   // repeatable
-                'name' => 'translations',
-                'label' => 'Translations',
-                'type' => 'translations',
-                'fields' => [
-                    [
-                        'name' => 'name',
-                        'type' => 'text',
-                        'label' => 'Product Name',
-                    ],
-                    [
-                        'name' => 'description',
-                        'type' => 'textarea',
-                        'label' => 'Description',
-                    ],
-                ],
-            ]);
-        }
+            ],
+        ]);
 
         CRUD::addField([
             'name' => 'price',

@@ -105,19 +105,22 @@
              * Takes all inputs and makes them an object.
              */
             function repeatableInputToObj(container_name) {
-                var arr = {};
+                var arr = [];
+                var obj = {};
 
                 var container = $('[data-repeatable-holder=' + container_name + ']');
 
                 container.find('.well').each(function () {
                     $(this).find('input, select, textarea').each(function () {
                         if ($(this).data('repeatable-input-name')) {
-                            arr[$(this).data('locale')+'.'+$(this).data('repeatable-input-name')] = $(this).val();
+                            obj['locale'] = $(this).data('locale');
+                            obj['column_name'] = $(this).data('repeatable-input-name');
+                            obj['value'] = $(this).val();
+                            arr.push(obj);
+                            obj = {};
                         }
                     });
                 });
-
-                console.log(JSON.stringify(arr));
 
                 return arr;
             }

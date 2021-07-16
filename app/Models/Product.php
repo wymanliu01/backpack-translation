@@ -10,11 +10,6 @@ class Product extends Model implements WithTranslation
 {
     use CrudTrait;
 
-    public $translatable = [
-        'name',
-        'description',
-    ];
-
     protected $fillable = [
         'sku',
         'name',
