@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Extensions\Backpack\CrudPanelFacade as CRUD;
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Traits\Backpack\TranslationOperation;
