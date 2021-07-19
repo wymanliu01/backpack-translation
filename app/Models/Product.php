@@ -34,7 +34,11 @@ class Product extends Model implements WithTranslation
 
         foreach (ProductTranslation::whereProductId($this->attributes['id'])->get() as $translation) {
 
-            $translations[$translation->column_name][$translation->locale] = $translation->value;
+            $translations[] = [
+                'locale' => $translation->locale,
+                'column_name' => $translation->column_name,
+                'value' => $translation->value,
+            ];
         }
 
         return $translations;

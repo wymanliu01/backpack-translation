@@ -36,17 +36,7 @@ trait TranslationOperation
 
         if (method_exists($item, 'getTranslations')) {
 
-            foreach ($item->getTranslations() as $columnName => $translation) {
-
-                foreach ($translation as $locale => $value) {
-
-                    if (isset($fields[sprintf('%s_t_%s', $columnName, $locale)])) {
-
-                        $fields[sprintf('%s_t_%s', $columnName, $locale)]['value'] = $value;
-
-                    }
-                }
-            }
+            $fields['translations']['value'] = json_encode($item->getTranslations());
         }
 
         $this->crud->setOperationSetting('fields', $fields);
@@ -122,7 +112,13 @@ trait TranslationOperation
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()), $inputData);
         $this->data['entry'] = $this->crud->entry = $item;
 
-        //$this->setItemTranslation($item, $inputData);
+        if (is_array(json_decode($inputData['translations']))){
+            foreach (json_decode($inputData['translations']) as $translation){
+                if (isset($translation->locale, $translation->column_name, $translation->value)){
+                    $this->setItemTranslation($item, $translation->locale, $translation->column_name, $translation->value);
+                }
+            }
+        }
 
         // show a success message
         Alert::success(trans('backpack::crud.update_success'))->flash();

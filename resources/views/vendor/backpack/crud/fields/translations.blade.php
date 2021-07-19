@@ -1,7 +1,7 @@
 {{-- REPEATABLE FIELD TYPE --}}
 
 @php
-    $field['value'] = old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' ));
+    $field['value'] = old($field['name']) ? old($field['name']) : ($field['value'] ?? ($field['default'] ?? '' ));
     // make sure the value is a JSON string (not array, if it's cast in the model)
     $field['value'] = is_array($field['value']) ? json_encode($field['value']) : $field['value'];
 
@@ -15,7 +15,7 @@
 @include('crud::fields.inc.translatable_icon')
 
 <div>
-    @foreach ($field['locales'] ?? config('app.supported_locales') ?? [] as $locale)
+    @foreach ($field['locales'] ?? config('app.supported_locales', []) as $locale)
         <button type="button" class="btn btn-outline-primary btn-sm ml-1 add-repeatable-element-button"
                 data-locale="{{$locale}}">
             + {{$locale}}</button>
@@ -169,9 +169,20 @@
                 if (element.val()) {
                     var repeatable_fields_values = JSON.parse(element.val());
 
+                    var obj = [];
+
                     for (var i = 0; i < repeatable_fields_values.length; ++i) {
-                        newRepeatableElement(container, field_group_clone, repeatable_fields_values[i]);
+                        //console.log(repeatable_fields_values[i]['locale']);
+                        if (typeof (obj[repeatable_fields_values[i]['locale']]) === 'undefined') {
+                            obj[repeatable_fields_values[i]['locale']] = [];
+                        }
+                        obj[repeatable_fields_values[i]['locale']][repeatable_fields_values[i]['column_name']] = repeatable_fields_values[i]['value'];
                     }
+
+                    for (var key in obj) {
+                        newRepeatableElement(container, field_group_clone, obj[key], key);
+                    }
+
                 } else {
                     var container_rows = 0;
                     var add_entry_button = element.parent().find('.add-repeatable-element-button');
@@ -188,6 +199,7 @@
                 } else if (element.closest('form').length) {
                     element.closest('form').submit(function () {
                         element.val(JSON.stringify(repeatableInputToObj(field_name)));
+                        console.log(JSON.stringify(repeatableInputToObj(field_name)));
                         return true;
                     })
                 }
@@ -201,14 +213,14 @@
                 var field_name = container.data('repeatable-identifier');
                 var new_field_group = field_group.clone();
 
-                new_field_group.prepend('<div class="col-sm-12" element="div"><h4>'+locale+'</h4></div>');
+                new_field_group.prepend('<div class="col-sm-12" element="div"><h4>' + locale + '</h4></div>');
 
                 // this is the container that holds the group of fields inside the main form.
                 var container_holder = $('[data-repeatable-holder=' + field_name + ']');
 
                 new_field_group.find('.delete-element').click(function () {
+                    container_holder.parent().parent().find('.add-repeatable-element-button[data-locale="' + locale + '"]').show();
                     new_field_group.find('input, select, textarea').each(function (i, el) {
-                        container_holder.parent().parent().find('.add-repeatable-element-button[data-locale="' + locale + '"]').show();
                         // we trigger this event so fields can intercept when they are being deleted from the page
                         // implemented because of ckeditor instances that stayed around when deleted from page
                         // introducing unwanted js errors and high memory usage.
@@ -232,6 +244,9 @@
                     $(this).attr('data-locale', locale);
 
                     if (values != null) {
+
+                        container_holder.parent().parent().find('.add-repeatable-element-button[data-locale="' + locale + '"]').hide();
+
                         if ($(this).data('repeatable-input-name') && values.hasOwnProperty($(this).data('repeatable-input-name'))) {
 
                             // if the field provides a `data-value-prefix` attribute, we should respect that and add that prefix to the value.
