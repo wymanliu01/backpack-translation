@@ -25,7 +25,9 @@ class Product extends Model implements WithTranslation
             $locales[] = $translation->locale;
         }
 
-        ProductTranslation::whereProductId($this->attributes['id'])->whereNotIn('locale', $locales)->delete();
+        ProductTranslation::whereProductId($this->attributes['id'])
+            ->whereNotIn('locale', $locales)
+            ->delete();
 
         foreach ($translations as $translation) {
             ProductTranslation::updateOrCreate([
