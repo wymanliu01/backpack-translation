@@ -27,7 +27,16 @@ class ProductRequest extends FormRequest
     {
         return [
             'sku' => 'required',
-            'price' => 'required'
+            'price' => 'required',
+            'translations' => function ($attribute, $value, $fail) {
+                $inputs = json_decode($value);
+                foreach ($inputs as $input) {
+                    if (empty($input->name)) {
+                        return $fail(sprintf('One of the elements in the %s was not entered in the "Name" field', $attribute));
+                    }
+                }
+
+            },
         ];
     }
 
