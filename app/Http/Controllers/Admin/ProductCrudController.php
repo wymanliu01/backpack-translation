@@ -109,7 +109,7 @@ class ProductCrudController extends CrudController
                 ],
                 [
                     'name' => 'description',
-                    'type' => 'image',
+                    'type' => 'textarea',
                     'label' => 'Description',
                 ],
             ],
