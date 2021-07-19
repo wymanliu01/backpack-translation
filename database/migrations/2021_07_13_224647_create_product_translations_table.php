@@ -10,10 +10,10 @@ class CreateProductTranslationsTable extends Migration
     {
         Schema::create('product_translation', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->string('locale');
-            $table->string('column_name');
-            $table->text('value');
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

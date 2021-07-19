@@ -68,12 +68,8 @@ trait TranslationOperation
         $item = $this->crud->create($inputData);
         $this->data['entry'] = $this->crud->entry = $item;
 
-        if (is_array(json_decode($inputData['translations']))){
-            foreach (json_decode($inputData['translations']) as $translation){
-                if (isset($translation->locale, $translation->column_name, $translation->value)){
-                    $this->setItemTranslation($item, $translation->locale, $translation->column_name, $translation->value);
-                }
-            }
+        if (!empty($inputData['translations'])) {
+            $this->setItemTranslations($item, json_decode($inputData['translations']));
         }
 
         // show a success message
@@ -91,9 +87,9 @@ trait TranslationOperation
      * @param $columnName
      * @param $value
      */
-    private function setItemTranslation($item, $locale, $columnName, $value)
+    private function setItemTranslations($item, $translations)
     {
-        $item->setTranslation($locale, $columnName, $value);
+        $item->setTranslations($translations);
     }
 
     /**
@@ -112,12 +108,8 @@ trait TranslationOperation
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()), $inputData);
         $this->data['entry'] = $this->crud->entry = $item;
 
-        if (is_array(json_decode($inputData['translations']))){
-            foreach (json_decode($inputData['translations']) as $translation){
-                if (isset($translation->locale, $translation->column_name, $translation->value)){
-                    $this->setItemTranslation($item, $translation->locale, $translation->column_name, $translation->value);
-                }
-            }
+        if (!empty($inputData['translations'])) {
+            $this->setItemTranslations($item, json_decode($inputData['translations']));
         }
 
         // show a success message

@@ -8,9 +8,9 @@ class ProductTranslation extends Model
 {
     protected $fillable = [
         'product_id',
-        'column_name',
-        'value',
         'locale',
+        'name',
+        'description',
     ];
 
     protected $table = 'product_translation';

@@ -111,15 +111,14 @@
                 var container = $('[data-repeatable-holder=' + container_name + ']');
 
                 container.find('.well').each(function () {
+                    obj['locale'] = $(this).data('locale');
                     $(this).find('input, select, textarea').each(function () {
                         if ($(this).data('repeatable-input-name')) {
-                            obj['locale'] = $(this).data('locale');
-                            obj['column_name'] = $(this).data('repeatable-input-name');
-                            obj['value'] = $(this).val();
-                            arr.push(obj);
-                            obj = {};
+                            obj[$(this).data('repeatable-input-name')] = $(this).val();
                         }
                     });
+                    arr.push(obj);
+                    obj = {};
                 });
 
                 return arr;
@@ -172,15 +171,9 @@
                     var obj = [];
 
                     for (var i = 0; i < repeatable_fields_values.length; ++i) {
-                        //console.log(repeatable_fields_values[i]['locale']);
-                        if (typeof (obj[repeatable_fields_values[i]['locale']]) === 'undefined') {
-                            obj[repeatable_fields_values[i]['locale']] = [];
-                        }
-                        obj[repeatable_fields_values[i]['locale']][repeatable_fields_values[i]['column_name']] = repeatable_fields_values[i]['value'];
-                    }
-
-                    for (var key in obj) {
-                        newRepeatableElement(container, field_group_clone, obj[key], key);
+                        let locale = repeatable_fields_values[i]['locale'];
+                        delete repeatable_fields_values[i]['locale'];
+                        newRepeatableElement(container, field_group_clone, repeatable_fields_values[i], locale);
                     }
 
                 } else {
@@ -199,7 +192,6 @@
                 } else if (element.closest('form').length) {
                     element.closest('form').submit(function () {
                         element.val(JSON.stringify(repeatableInputToObj(field_name)));
-                        console.log(JSON.stringify(repeatableInputToObj(field_name)));
                         return true;
                     })
                 }
@@ -213,6 +205,7 @@
                 var field_name = container.data('repeatable-identifier');
                 var new_field_group = field_group.clone();
 
+                new_field_group.attr('data-locale', locale);
                 new_field_group.prepend('<div class="col-sm-12" element="div"><h4>' + locale + '</h4></div>');
 
                 // this is the container that holds the group of fields inside the main form.

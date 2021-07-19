@@ -17,15 +17,25 @@ class Product extends Model implements WithTranslation
         'description',
     ];
 
-    public function setTranslation($locale, $column, $value): void
+    public function setTranslations($translations): void
     {
-        ProductTranslation::updateOrCreate([
-            'product_id' => $this->attributes['id'],
-            'locale' => $locale,
-            'column_name' => $column,
-        ], [
-            'value' => $value,
-        ]);
+        $locales = [];
+
+        foreach ($translations as $translation) {
+            $locales[] = $translation->locale;
+        }
+
+        ProductTranslation::whereProductId($this->attributes['id'])->whereNotIn('locale', $locales)->delete();
+
+        foreach ($translations as $translation) {
+            ProductTranslation::updateOrCreate([
+                'product_id' => $this->attributes['id'],
+                'locale' => $translation->locale,
+            ], [
+                'name' => $translation->name,
+                'description' => $translation->description,
+            ]);
+        }
     }
 
     public function getTranslations(): array
@@ -36,8 +46,8 @@ class Product extends Model implements WithTranslation
 
             $translations[] = [
                 'locale' => $translation->locale,
-                'column_name' => $translation->column_name,
-                'value' => $translation->value,
+                'name' => $translation->name,
+                'description' => $translation->description,
             ];
         }
 
