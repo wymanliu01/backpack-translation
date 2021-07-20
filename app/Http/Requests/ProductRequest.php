@@ -26,17 +26,11 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'sku' => 'required',
+            'sku' => 'required|email|numeric',
+            'name' => 'required',
             'price' => 'required',
-            'translations' => function ($attribute, $value, $fail) {
-                $inputs = json_decode($value);
-                foreach ($inputs as $input) {
-                    if (empty($input->name)) {
-                        return $fail(sprintf('One of the elements in the %s was not entered in the "Name" field', $attribute));
-                    }
-                }
-
-            },
+            'translations.*.locale' => 'required',
+            'translations.*.name' => 'required|email|numeric',
         ];
     }
 
@@ -62,5 +56,16 @@ class ProductRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $translations = [];
+
+        foreach (json_decode($this->input('translations'), true) as $translation) {
+            $translations[$translation['locale']] = $translation;
+        }
+
+        $this->merge(['translations' => $translations]);
     }
 }

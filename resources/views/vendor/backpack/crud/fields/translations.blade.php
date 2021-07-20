@@ -8,8 +8,9 @@
     $field['init_rows'] = $field['init_rows'] ?? $field['min_rows'] ?? 1;
     $field['max_rows'] = $field['max_rows'] ?? 0;
     $field['min_rows'] =  $field['min_rows'] ?? 0;
-@endphp
 
+    $field['errors'] = $errors->messages();
+@endphp
 @include('crud::fields.inc.wrapper_start')
 <label>{!! $field['label'] !!}</label>
 @include('crud::fields.inc.translatable_icon')
@@ -35,17 +36,18 @@
 @endif
 
 
-
 <div class="container-repeatable-elements">
     <div
         data-repeatable-holder="{{ $field['name'] }}"
         data-init-rows="0"
         data-max-rows="{{ $field['max_rows'] }}"
         data-min-rows="{{ $field['min_rows'] }}"
+        data-errors="{{json_encode($field['errors'])}}"
     ></div>
 
     @push('before_scripts')
-        <div class="col-md-12 well repeatable-element row m-1 p-2" data-repeatable-identifier="{{ $field['name'] }}">
+        <div class="col-md-12 well repeatable-element row m-1 p-2"
+             data-repeatable-identifier="{{ $field['name'] }}">
             @if (isset($field['fields']) && is_array($field['fields']) && count($field['fields']))
                 <button type="button" class="close delete-element"><span aria-hidden="true">×</span></button>
                 @foreach($field['fields'] as $subfield)
@@ -63,7 +65,6 @@
     @endpush
 
 </div>
-
 @include('crud::fields.inc.wrapper_end')
 
 @if ($crud->fieldTypeNotLoaded($field))
@@ -176,6 +177,21 @@
                         newRepeatableElement(container, field_group_clone, repeatable_fields_values[i], locale);
                     }
 
+                    const this_field_name = field_name;
+
+                    $.each($('.container-repeatable-elements div').data('errors'), function (key, value) {
+                        if (key.startsWith(this_field_name + '.')) {
+                            const errorArr = key.split('.');
+                            const errorFieldSelector = '[data-repeatable-input-name="' + errorArr[2] + '"][data-locale="' + errorArr[1] + '"]';
+                            $(errorFieldSelector).parent().css('color', '#df4759');
+                            $(errorFieldSelector).parent().find('input, select, textarea').addClass('is-invalid');
+                            $.each(value, function (index, message) {
+                                $(errorFieldSelector).parent().find('input, select, textarea')
+                                    .after('<div class="invalid-feedback d-block">' + message + '</div>');
+                            });
+                        }
+                    });
+
                 } else {
                     var container_rows = 0;
                     var add_entry_button = element.parent().find('.add-repeatable-element-button');
@@ -206,7 +222,7 @@
                 var new_field_group = field_group.clone();
 
                 new_field_group.attr('data-locale', locale);
-                new_field_group.prepend('<div class="col-sm-12" element="div"><h4>' + locale + '</h4></div>');
+                new_field_group.prepend('<div class="col-sm-12" element="div" data-locale="' + locale + '"><h4>' + locale + '</h4></div>');
 
                 // this is the container that holds the group of fields inside the main form.
                 var container_holder = $('[data-repeatable-holder=' + field_name + ']');
@@ -260,7 +276,6 @@
                         }
                     }
                 });
-
 
                 // we push the fields to the correct container in page.
                 container_holder.append(new_field_group);

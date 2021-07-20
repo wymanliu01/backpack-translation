@@ -104,7 +104,7 @@ class ProductCrudController extends CrudController
             'fields' => [
                 [
                     'name' => 'name',
-                    'type' => 'text',
+                    'type' => 'textarea',
                     'label' => 'Product Name',
                 ],
                 [
