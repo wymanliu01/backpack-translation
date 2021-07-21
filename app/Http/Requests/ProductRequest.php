@@ -26,11 +26,11 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'sku' => 'required|email|numeric',
+            'sku' => 'required',
             'name' => 'required',
             'price' => 'required',
             'translations.*.locale' => 'required',
-            'translations.*.name' => 'required|email|numeric',
+            'translations.*.name' => 'required',
         ];
     }
 

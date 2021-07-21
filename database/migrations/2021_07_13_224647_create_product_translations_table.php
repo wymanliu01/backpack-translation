@@ -14,6 +14,7 @@ class CreateProductTranslationsTable extends Migration
             $table->string('locale');
             $table->string('name');
             $table->text('description')->nullable();
+            $table->text('image')->nullable();
             $table->timestamps();
         });
     }

@@ -112,6 +112,11 @@ class ProductCrudController extends CrudController
                     'type' => 'textarea',
                     'label' => 'Description',
                 ],
+                [
+                    'name' => 'image',
+                    'type' => 'image',
+                    'label' => 'Image',
+                ],
             ],
         ]);
 

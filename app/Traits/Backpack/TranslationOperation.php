@@ -83,9 +83,7 @@ trait TranslationOperation
 
     /**
      * @param $item
-     * @param $locale
-     * @param $columnName
-     * @param $value
+     * @param $translations
      */
     private function setItemTranslations($item, $translations)
     {

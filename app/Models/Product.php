@@ -30,13 +30,15 @@ class Product extends Model implements WithTranslation
             ->delete();
 
         foreach ($translations as $translation) {
-            ProductTranslation::updateOrCreate([
+            $newTranslation = ProductTranslation::updateOrCreate([
                 'product_id' => $this->attributes['id'],
                 'locale' => $translation->locale,
             ], [
                 'name' => $translation->name,
                 'description' => $translation->description,
             ]);
+
+            $newTranslation->image = $translation->image;
         }
     }
 
