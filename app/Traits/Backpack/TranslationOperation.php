@@ -3,6 +3,7 @@
 namespace App\Traits\Backpack;
 
 use Alert;
+use App\Traits\HasImageModel;
 use Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
 use Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
 use Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
@@ -66,6 +67,11 @@ trait TranslationOperation
 
         // insert item in the db
         $item = $this->crud->create($inputData);
+
+        if (trait_exists('ImageOperation')) {
+            $this->saveImageFields($item, $inputData);
+        }
+
         $this->data['entry'] = $this->crud->entry = $item;
 
         if (!empty($inputData['translations'])) {
@@ -104,6 +110,11 @@ trait TranslationOperation
         $inputData = $this->crud->getStrippedSaveRequest();
 
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()), $inputData);
+
+        if (in_array(ImageOperation::class, class_uses($this))) {
+            $this->saveImageFields($item, $inputData);
+        }
+
         $this->data['entry'] = $this->crud->entry = $item;
 
         if (!empty($inputData['translations'])) {

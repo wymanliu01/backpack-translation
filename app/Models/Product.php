@@ -3,12 +3,19 @@
 namespace App\Models;
 
 use App\Interfaces\Backpack\WithTranslation;
+use App\Traits\HasImageModel;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements WithTranslation
 {
+    use HasImageModel;
     use CrudTrait;
+
+    // for image store with a table in relationship
+    public $imageable = [
+        'image',
+    ];
 
     protected $fillable = [
         'sku',

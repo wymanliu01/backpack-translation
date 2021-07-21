@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use App\Traits\Backpack\ImageOperation;
 use App\Traits\Backpack\TranslationOperation;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
@@ -21,6 +22,7 @@ class ProductCrudController extends CrudController
     use DeleteOperation;
     use ShowOperation;
     use TranslationOperation;
+    use ImageOperation;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -89,6 +91,12 @@ class ProductCrudController extends CrudController
             'name' => 'name',
             'type' => 'text',
             'label' => 'Product Name (Default)',
+        ]);
+
+        CRUD::addField([
+            'name' => 'image',
+            'type' => 'image',
+            'label' => 'Image',
         ]);
 
         CRUD::addField([
