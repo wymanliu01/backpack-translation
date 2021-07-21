@@ -83,5 +83,4 @@ trait HasImageModel
             return null;
         }
     }
-
 }
