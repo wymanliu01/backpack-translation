@@ -13,15 +13,19 @@ use Str;
 trait HasImageModel
 {
     /**
+     * @param $column
      * @param $value
-     * @noinspection PhpUnused
      */
-    public function setImageAttribute($value)
+    public function setImage($column, $value)
     {
-        $disk = config('filesystems.default');
-
         // 1.
         // when $value is a url, means $value passed the original url from cms, do nothing
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return;
+        }
+
+        $disk = config('filesystems.default');
+        $thisImage = Str::after($this->getImage($column), config("filesystems.disks.$disk.url") . '/');
 
         // 2.
         // when $value is a base64 string, cms update or create a new image,
@@ -30,20 +34,19 @@ trait HasImageModel
 
             $extension = Str::after(Str::before($value, ';'), '/');
             $filename = md5($value . time()) . ".$extension";
-            $filePath = "images/$this->table/$filename";
+            $filePath = "images/$this->table/$column/$filename";
 
             $imageBase64 = base64_decode(Str::after($value, ','));
 
             Storage::disk($disk)->put($filePath, $imageBase64);
 
-            if (!empty($this->image)) {
-                $originalImage = $this->image;
-                Storage::disk($disk)->delete($originalImage);
+            if (!empty($thisImage)) {
+                Storage::disk($disk)->delete($thisImage);
             }
 
             if (!empty($this->id)) {
                 Image::updateOrCreate(
-                    ['source_type' => self::class, 'source_id' => $this->id],
+                    ['source_type' => self::class, 'source_id' => $this->id, 'column_name' => $column],
                     ['url' => $filePath]
                 );
             }
@@ -53,12 +56,14 @@ trait HasImageModel
         // if $value is empty or is null, means cms didnt pass the photo or photo has been removed
         // do delete file and record if the original file and record are found
         if (empty($value)) {
-            if (!empty($this->image)) {
-                $originalImage = Str::after($this->image, config("filesystems.disks.$disk.url") . '/');
-                Storage::disk($disk)->delete($originalImage);
+            if (!empty($thisImage)) {
+                Storage::disk($disk)->delete($thisImage);
             }
 
-            Image::whereSourceType(self::class)->whereSourceId($this->id)->delete();
+            Image::whereSourceType(self::class)
+                ->whereSourceId($this->id)
+                ->whereColumnName($column)
+                ->delete();
         }
     }
 
@@ -66,11 +71,14 @@ trait HasImageModel
      * @return string
      * @noinspection PhpUnused
      */
-    public function getImageAttribute(): ?string
+    public function getImage($column): ?string
     {
         if (!empty($this->id)) {
 
-            $image = Image::whereSourceType(self::class)->whereSourceId($this->id)->first();
+            $image = Image::whereSourceType(self::class)
+                ->whereSourceId($this->id)
+                ->whereColumnName($column)
+                ->first();
 
             if (is_null($image)) {
                 return null;
